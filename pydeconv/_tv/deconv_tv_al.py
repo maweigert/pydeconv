@@ -15,7 +15,11 @@ def divergence(u):
     """the divergence of vector field u where u[i,...] are the components """
     return reduce(np.add,[np.gradient(u[i])[i] for i in range(len(u))])
 
-    
+def grad(u):
+    """equilvalent to  np.array(np.gradient(u)) but way faster"""
+    return np.vstack([_du[np.newaxis,...] for _du in np.gradient(u)])
+
+
 def dft_lap(dshape,units = None, use_rfft = False):
     """ the dft of the laplacian stencil in 2d"""
     if units is None:
@@ -55,6 +59,10 @@ def _deconv_tv_al_fft(ys, hs,
     set y_is_fft/h_is_fft to True
 
     tv_norm = "isotropic","anisotropic"
+
+    - rho/mu corresponds roughly to the gamma parameter in deconv_wiener
+    - the smaller rho, the bigger the thresholding effect
+
     
     """
 
@@ -88,7 +96,8 @@ def _deconv_tv_al_fft(ys, hs,
     lap  = -dft_lap(dshape, use_rfft = False)
     
     f = 1.*ys[0]
-    u = np.array(np.gradient(f))
+    #u = np.array(np.gradient(f))
+    u = grad(f)
     y = np.zeros((ys[0].ndim,)+dshape)
            
 
@@ -107,7 +116,8 @@ def _deconv_tv_al_fft(ys, hs,
 
         # u subproblem
         
-        df = np.array(np.gradient(f))
+        #df = np.array(np.gradient(f))
+        df = grad(f)
 
         if tv_norm == "isotropic":
             # isotropic  case
@@ -190,7 +200,8 @@ def deconv_tv_al(ys, hs,
         f = 1.*ys[0]
     else:
         f = np.real(FFTW.irfftn(ys[0]))
-    u = np.array(np.gradient(f))
+    #u = np.array(np.gradient(f))
+    u = grad(f)
     y = np.zeros((ys[0].ndim,)+dshape)
            
 
@@ -209,7 +220,8 @@ def deconv_tv_al(ys, hs,
 
         # u subproblem
         
-        df = np.array(np.gradient(f))
+        #df = np.array(np.gradient(f))
+        df = grad(f)
 
         if tv_norm == "isotropic":
             # isotropic  case
@@ -237,7 +249,7 @@ if __name__ == '__main__':
     from matplotlib.pyplot import imread
     from pydeconv.utils import myconvolve, psf
     
-    im = imread("../tests/data/usaf.png")
+    im = imread("../tests2/data/usaf.png")
 
 
     np.random.seed(0)

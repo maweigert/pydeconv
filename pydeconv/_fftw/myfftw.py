@@ -22,9 +22,9 @@ class MyFFTW(object):
     flags = ('FFTW_MEASURE','FFTW_DESTROY_INPUT')
     _WISDOM_FILE = os.path.expanduser("~/.myfftw/wisdom")
     
-    def __init__(self,shape, n_threads = 4):
+    def __init__(self,shape, n_threads = 4, unitary = False):
         if not np.all([s%16==0 for s in shape]):
-            raise ValueError("shape should be divisble by 16!")
+            raise ValueError("shape should be divisible by 16!")
 
         ax = range(len(shape))
 
@@ -38,6 +38,10 @@ class MyFFTW(object):
         self.input_c2 = pyfftw.n_byte_align_empty(rshape, 16, 'complex64')
 
 
+        if unitary:
+            self.prefac = 1.*np.sqrt(np.prod(shape))
+        else:
+            self.prefac  = None
 
         self.import_wisdom()
 
@@ -63,29 +67,52 @@ class MyFFTW(object):
 
     def fftn(self,x):
         self.input_c[:] = x
-        return self._fftn().copy()
+        res = self._fftn().copy()
+        if self.prefac:
+            res /= self.prefac
+        return res
         
     def ifftn(self,x):
         self.input_c[:] = x
-        return self._ifftn().copy()
+        res = self._ifftn().copy()
+        if self.prefac:
+            res *= self.prefac
+        return res
+
 
     def rfftn(self,x):
         self.input_r[:] = x
-        return 1.*self._rfftn().copy()
+        res = 1.*self._rfftn().copy()
+        if self.prefac:
+            res /= self.prefac
+        return res
+
 
     def irfftn(self,x):
         self.input_c2[:] = x
-        return self._irfftn().copy()
+        res = self._irfftn().copy()
+        if self.prefac:
+            res *= self.prefac
+        return res
+
         
     def zfftn(self,x):
         """ dont transform along first dimension"""
         self.input_c[:] = x
-        return self._zfftn().copy()
+        res = self._zfftn().copy()
+        if self.prefac:
+            res /= self.prefac
+        return res
+
 
     def zifftn(self,x):
         """ dont transform along first dimension"""
         self.input_c[:] = x
-        return self._zifftn().copy()
+        res = self._zifftn().copy()
+        if self.prefac:
+            res *= self.prefac
+        return res
+
         
     def export_wisdom(self):
         wis = pyfftw.export_wisdom()
