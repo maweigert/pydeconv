@@ -18,4 +18,15 @@ def psf(dshape,sigmas = (2.,2.)):
 
     h *= 1./np.sum(h)
     return np.fft.ifftshift(h)
-    
+
+
+def psf_airy(dshape,rads = (2.,2.)):
+    ks = [np.fft.fftfreq(d) for d in dshape]
+
+    Ks = np.meshgrid(*ks,indexing="ij")
+    KR = np.sqrt(reduce(np.add,[K**2*4*r**2 for K,r in zip(Ks,rads)]))
+    u = 1.*(KR<=1.)
+    h = np.abs(np.fft.ifftn(u))**2
+    h *= 1./np.sum(h)
+    return h
+
