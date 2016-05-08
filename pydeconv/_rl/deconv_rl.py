@@ -5,14 +5,13 @@ import numpy as  np
 from pydeconv._fftw.myfftw import MyFFTW
 
 
-
-
 def deconv_rl(ys, hs,
               Niter=10,
               gamma = 1.e-2,
-                n_threads = 6,
-                  y_is_fft = False,
-                   h_is_fft = False):
+              n_threads = 6,
+              y_is_fft = False,
+              h_is_fft = False,
+              log_iter = False):
     
     """ richardson lucy deconvolution
 
@@ -44,7 +43,10 @@ def deconv_rl(ys, hs,
         dshape = ys[0].shape
     else:
         dshape = ys[0].shape[:-1]+(2*(ys[0].shape[-1]-1),)
-    
+
+    if log_iter:
+        print "creating FFTW object"
+
     FFTW = MyFFTW(dshape,n_threads = n_threads)
 
     if ys[0].ndim==1:
@@ -55,6 +57,9 @@ def deconv_rl(ys, hs,
         hs_flip = [h[::-1,::-1,::-1] for h in hs]
     else:
         raise NotImplementedError("data dimension %s not supported"%ys[0].ndim)
+
+    if log_iter:
+        print "setting up ffts"
 
     if not h_is_fft:
         Hs = [FFTW.rfftn(h) for h in hs]
@@ -79,7 +84,9 @@ def deconv_rl(ys, hs,
 
     u = np.mean(ys[0])*np.ones_like(ys[0])
 
-    for _ in range(Niter):
+    for i in range(Niter):
+        if log_iter:
+            print "deconv_rl step %s/%s"%(i+1,Niter)
         U = FFTW.rfftn(u)
         us = [_single_lucy_step(y,U,H,H_flip) for y,H,H_flip in zip(ys,Hs,Hs_flip)]
 
@@ -87,6 +94,7 @@ def deconv_rl(ys, hs,
         #return u,us[0]
 
     return u
+
 
 if __name__ == '__main__':
 

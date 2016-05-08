@@ -9,7 +9,8 @@ def deconv_wiener(ys, hs,
                    gamma = 1.e-6,
                    n_threads = 6,
                    y_is_fft = False,
-                   h_is_fft = False):
+                   h_is_fft = False,
+                  fft_is_unitary = True):
     
     """ wiener deconv
 
@@ -35,12 +36,13 @@ def deconv_wiener(ys, hs,
     if not np.all([_y.shape == _h.shape for _y, _h in zip(ys,hs)]):
         raise ValueError("y and h have non compatible shapes...")
 
+
     if not y_is_fft:
         dshape = ys[0].shape
     else:
         dshape = ys[0].shape[:-1]+(2*(ys[0].shape[-1]-1),)
     
-    FFTW = MyFFTW(dshape,unitary = True, n_threads = n_threads)
+    FFTW = MyFFTW(dshape,unitary = fft_is_unitary, n_threads = n_threads)
 
 
     if not h_is_fft:
