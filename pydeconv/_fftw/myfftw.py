@@ -21,6 +21,10 @@ class MyFFTW(object):
     
     flags = ('FFTW_MEASURE','FFTW_DESTROY_INPUT')
     _WISDOM_FILE = os.path.expanduser("~/.myfftw/wisdom")
+
+    _complex_type = np.complex64
+    _real_type = np.float32
+
     
     def __init__(self,shape, n_threads = 4, unitary = False):
         if not np.all([s%16==0 for s in shape]):
@@ -31,11 +35,13 @@ class MyFFTW(object):
         # the shape for the rfftn
         rshape = shape[:-1]+(shape[-1]/2+1,)
 
-        self.input_c = pyfftw.n_byte_align_empty(shape, 16, 'complex64')
+        # self.input_c = pyfftw.n_byte_align_empty(shape, 16, 'complex64')
+        # self.input_r = pyfftw.n_byte_align_empty(shape, 16, 'float32')
+        # self.input_c2 = pyfftw.n_byte_align_empty(rshape, 16, 'complex64')
 
-        self.input_r = pyfftw.n_byte_align_empty(shape, 16, 'float32')
-
-        self.input_c2 = pyfftw.n_byte_align_empty(rshape, 16, 'complex64')
+        self.input_c = pyfftw.empty_aligned(shape,  'complex64')
+        self.input_r = pyfftw.empty_aligned(shape,  'float32')
+        self.input_c2 = pyfftw.empty_aligned(rshape, 'complex64')
 
 
         if unitary:
@@ -66,14 +72,24 @@ class MyFFTW(object):
         self.export_wisdom()
 
     def fftn(self,x):
-        self.input_c[:] = x
+        # if not x.dtype.type is self._complex_type:
+        #     raise ValueError("wrong input type! Should be %s but is %s"%(self._complex_type, x.dtype.type))
+
+
+        self.input_c[:] = x.astype(self._complex_type, copy = False)
+
         res = self._fftn().copy()
+
         if self.prefac:
             res /= self.prefac
         return res
         
     def ifftn(self,x):
-        self.input_c[:] = x
+        # if not x.dtype.type is self._complex_type:
+        #     raise ValueError("wrong input type! Should be %s but is %s"%(self._complex_type, x.dtype.type))
+
+        self.input_c[:] = x.astype(self._complex_type, copy = False)
+
         res = self._ifftn().copy()
         if self.prefac:
             res *= self.prefac
@@ -81,7 +97,10 @@ class MyFFTW(object):
 
 
     def rfftn(self,x):
-        self.input_r[:] = x
+        # if not x.dtype.type is self._real_type:
+        #     raise ValueError("wrong input type! Should be %s but is %s"%(self._real_type, x.dtype.type))
+
+        self.input_r[:] = x.astype(self._real_type, copy = False)
         res = 1.*self._rfftn().copy()
         if self.prefac:
             res /= self.prefac
@@ -89,7 +108,10 @@ class MyFFTW(object):
 
 
     def irfftn(self,x):
-        self.input_c2[:] = x
+        # if not x.dtype.type is self._complex_type:
+        #     raise ValueError("wrong input type! Should be %s but is %s"%(self._complex_type, x.dtype.type))
+
+        self.input_c2[:] = x.astype(self._complex_type, copy = False)
         res = self._irfftn().copy()
         if self.prefac:
             res *= self.prefac
@@ -98,7 +120,10 @@ class MyFFTW(object):
         
     def zfftn(self,x):
         """ dont transform along first dimension"""
-        self.input_c[:] = x
+        # if not x.dtype.type is self._complex_type:
+        #     raise ValueError("wrong input type! Should be %s but is %s"%(self._complex_type, x.dtype.type))
+
+        self.input_c[:] = x.astype(self._complex_type, copy = False)
         res = self._zfftn().copy()
         if self.prefac:
             res /= self.prefac
@@ -107,7 +132,10 @@ class MyFFTW(object):
 
     def zifftn(self,x):
         """ dont transform along first dimension"""
-        self.input_c[:] = x
+        # if not x.dtype.type is self._complex_type:
+        #     raise ValueError("wrong input type! Should be %s but is %s"%(self._complex_type, x.dtype.type))
+
+        self.input_c[:] = x.astype(self._complex_type, copy = False)
         res = self._zifftn().copy()
         if self.prefac:
             res *= self.prefac
