@@ -10,7 +10,7 @@ setup(name='pydeconv',
     license='MIT',
     packages=find_packages(),
 
-    install_requires=["numpy","pyopencl"],
+    install_requires=["numpy","pyopencl","pyfftw"],
 
     package_data={"gputools":
                   ['convolve/kernels/*l',
