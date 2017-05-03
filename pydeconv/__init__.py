@@ -1,4 +1,5 @@
 
+from __future__ import absolute_import
 from pydeconv._wiener.deconv_wiener import deconv_wiener, deconv_wiener2
 from pydeconv._hyperlap.hyperlap import deconv_hyperlap
 from pydeconv._tv.deconv_tv_al import deconv_tv_al

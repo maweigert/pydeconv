@@ -1,8 +1,11 @@
 """ joint wiener deconvolution """
 
+from __future__ import absolute_import, division, print_function
 import numpy as  np
                 
 from pydeconv._fftw.myfftw import MyFFTW
+from six.moves import zip
+from functools import reduce
 
 
 def deconv_wiener(ys, hs,

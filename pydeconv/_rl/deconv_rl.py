@@ -1,8 +1,12 @@
 """ joint wiener deconvolution """
 
+from __future__ import absolute_import, division, print_function
 import numpy as  np
                 
 from pydeconv._fftw.myfftw import MyFFTW
+from six.moves import range
+from six.moves import zip
+from functools import reduce
 
 def div_grad(u):
     grads = np.stack(np.gradient(u))
@@ -61,7 +65,7 @@ def deconv_rl(ys, hs,
 
 
     if log_iter:
-        print "creating FFTW object"
+        print("creating FFTW object")
 
     FFTW = MyFFTW(dshape,n_threads = n_threads, unitary=fft_is_unitary)
 
@@ -86,7 +90,7 @@ def deconv_rl(ys, hs,
 
 
     if log_iter:
-        print "setting up ffts"
+        print("setting up ffts")
 
     if not h_is_fft:
         Hs = [FFTW.rfftn(h) for h in hs]
@@ -112,7 +116,7 @@ def deconv_rl(ys, hs,
 
     for i in range(Niter):
         if log_iter:
-            print "deconv_rl step %s/%s"%(i+1,Niter)
+            print("deconv_rl step %s/%s"%(i+1,Niter))
         U = FFTW.rfftn(u)
         us = np.stack([_single_lucy_multiplier(y,U,H,H_flip) for y,H,H_flip in zip(ys,Hs,Hs_flip)])
 

@@ -1,8 +1,10 @@
 """ separable approx lr """
 
+from __future__ import absolute_import, division, print_function
 import numpy as  np
 from gputools.separable import separable_series, separable_approx
 from gputools import convolve_sep2, convolve_sep3
+from six.moves import range
 
 
 def _conv_sep_approx(data, hs):
@@ -51,7 +53,7 @@ def deconv_rl_sep(y, h,
 
     # check if we are far off
     h_reco = separable_approx(h, Nsep)[-1]
-    print "separable approximation relative error: ", np.sqrt(np.mean((h_reco - h) ** 2)) / np.amax(h)
+    print("separable approximation relative error: ", np.sqrt(np.mean((h_reco - h) ** 2)) / np.amax(h))
 
 
     #u = np.mean(y) * np.ones_like(y)
@@ -59,7 +61,7 @@ def deconv_rl_sep(y, h,
 
     for i in range(Niter):
         if log_iter:
-            print "deconv_rl step %s/%s" % (i + 1, Niter)
+            print("deconv_rl step %s/%s" % (i + 1, Niter))
         tmp = _conv_sep_approx(u, hs)
 
         tmp = y / (tmp + gamma)

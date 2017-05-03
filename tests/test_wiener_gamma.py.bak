@@ -1,5 +1,4 @@
 
-from __future__ import absolute_import
 from pydeconv import deconv_wiener
 import imgtools
 from scipy.optimize import minimize, fmin

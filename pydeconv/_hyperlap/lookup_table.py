@@ -4,7 +4,7 @@
 mweigert@mpi-cbg.de
 
 """
-
+from __future__ import absolute_import, division, print_function
 import numpy as np
 from scipy.integrate import odeint
 from scipy.optimize import minimize_scalar
@@ -46,7 +46,7 @@ class ThresholdingLookup(object):
         return odeint(grad_w,self._prox(b)(self.v_arr[-1]),self.v_arr[::-1]).flatten()[::-1]
 
     def _assemble(self, method = "use_min"):
-        print "calculating lookup table"
+        print("calculating lookup table")
 
         if method == "use_grad":
             self.grid = np.zeros((len(self.b_arr),len(self.v_arr)))

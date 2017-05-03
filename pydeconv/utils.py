@@ -1,5 +1,8 @@
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
+from six.moves import range
+from six.moves import zip
+from functools import reduce
 
 def myconvolve(x,h, is_fft = False):
     if is_fft:
@@ -12,7 +15,7 @@ def myconvolve(x,h, is_fft = False):
     return np.abs(np.fft.irfftn(x_f*h_f))
 
 def psf(dshape,sigmas = (2.,2.)):
-    Xs = np.meshgrid(*[np.arange(-_s/2,_s/2) for _s in dshape], indexing="ij")
+    Xs = np.meshgrid(*[np.arange(-_s//2,_s//2) for _s in dshape], indexing="ij")
 
     h = np.exp(-np.sum([_X**2/2./_s**2 for _X,_s in zip(Xs,sigmas)],axis=0))
 

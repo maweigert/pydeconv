@@ -1,7 +1,7 @@
 """ a small wrapper around fftw objects for constant input shape"""
 
 
-
+from __future__ import absolute_import, division, print_function
 import numpy as np
 
 import pyfftw
@@ -9,6 +9,7 @@ import pyfftw.interfaces.numpy_fft as fftw
 
 import os
 import pickle
+from six.moves import range
 
 
 pyfftw.interfaces.cache.enable()
@@ -30,10 +31,12 @@ class MyFFTW(object):
         if not np.all([s%16==0 for s in shape]):
             raise ValueError("shape should be divisible by 16!")
 
-        ax = range(len(shape))
+        ax = list(range(len(shape)))
 
         # the shape for the rfftn
-        rshape = shape[:-1]+(shape[-1]/2+1,)
+        rshape = shape[:-1]+(shape[-1]//2+1,)
+
+
 
         # self.input_c = pyfftw.n_byte_align_empty(shape, 16, 'complex64')
         # self.input_r = pyfftw.n_byte_align_empty(shape, 16, 'float32')
@@ -150,15 +153,15 @@ class MyFFTW(object):
         if not os.path.exists(basedir):
             os.makedirs(basedir)
             
-        with open(MyFFTW._WISDOM_FILE,"w") as f:
+        with open(MyFFTW._WISDOM_FILE,"wb") as f:
             pickle.dump(wis,f)
 
     def import_wisdom(self):
         try:
-            wis = pickle.load(open(MyFFTW._WISDOM_FILE,"r"))
+            wis = pickle.load(open(MyFFTW._WISDOM_FILE,"rb"))
             pyfftw.import_wisdom(wis)
         except Exception as e :
-            print e
+            print(e)
         
         
 if __name__ == '__main__':
@@ -181,7 +184,7 @@ if __name__ == '__main__':
 
     c = f.zfftn(x)
 
-    print time()-t
+    print(time()-t)
     
     
 

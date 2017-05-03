@@ -3,9 +3,13 @@
 see http://www.ccom.ucsd.edu/~peg/papers/ALvideopaper.pdf
 
 """
+from __future__ import absolute_import, division, print_function
 import numpy as np
 
 from pydeconv._fftw.myfftw import MyFFTW
+from six.moves import range
+from six.moves import zip
+from functools import reduce
 
 
 def soft_thresh(x,t = 1.):
@@ -132,7 +136,7 @@ def _deconv_tv_al_fft(ys, hs,
 
         y -= rho*(u-df)
 
-        print rho
+        print(rho)
         rnorm_new = np.sqrt(np.mean((u-df)**2))
         if rnorm_new > .7*rnorm:
             rho *= 2.
@@ -236,7 +240,7 @@ def deconv_tv_al(ys, hs,
 
         y -= rho*(u-df)
 
-        print rho
+        print(rho)
         rnorm_new = np.sqrt(np.mean((u-df)**2))
         if rnorm_new > .7*rnorm:
             rho *= 2.
@@ -343,7 +347,7 @@ if __name__ == '__main__':
 
         y -= rho*(u-df)
 
-        print rho
+        print(rho)
         rnorm_new = np.sqrt(np.mean((u-df)**2))
         if rnorm_new > .7*rnorm:
             rho *= 2.

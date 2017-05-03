@@ -1,9 +1,6 @@
-from __future__ import absolute_import
-from __future__ import print_function
 import numpy as np
 import numpy.testing as npt
 from pydeconv._fftw.myfftw import MyFFTW
-from six.moves import range
 
 
 def _single_shape(dshape, n_threads = 4):
@@ -17,7 +14,7 @@ def _single_shape(dshape, n_threads = 4):
 
     f =  MyFFTW(dshape, n_threads = n_threads)
 
-    print("testing %s ..." % str(dshape))
+    print "testing %s" % str(dshape)
 
     rtol = 1.e-3
     atol = 1.e-3
@@ -27,7 +24,6 @@ def _single_shape(dshape, n_threads = 4):
         npt.assert_allclose(f.ifftn(d_c), np.fft.ifftn(d_c), rtol = rtol, atol = atol)
         npt.assert_allclose(f.rfftn(d_r), np.fft.rfftn(d_r),  rtol = rtol, atol = atol)
         npt.assert_allclose(f.irfftn(d_c2), np.fft.irfftn(d_c2),  rtol = rtol, atol = atol)
-    print("...OK")
 
 if __name__ == '__main__':
 

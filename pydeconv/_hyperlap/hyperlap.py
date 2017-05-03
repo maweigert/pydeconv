@@ -6,10 +6,14 @@ see http://people.ee.duke.edu/~lcarin/NIPS2009_0341.pdf
 
 """
 
+from __future__ import absolute_import, division, print_function
 import numpy as  np
 from pydeconv._fftw.myfftw import MyFFTW
 from pydeconv._hyperlap.lookup_table import ThresholdingLookup
 from pydeconv.utils import *
+from six.moves import range
+from six.moves import zip
+from functools import reduce
 
 
 def get_lookup(alpha):
@@ -25,10 +29,10 @@ def get_lookup(alpha):
     if not os.path.exists(fname):
         look = ThresholdingLookup(alpha=alpha, v_max=2., n_v=512,
                                   b_max=400., n_b=512)
-        pickle.dump(look, open(fname, "w"))
+        pickle.dump(look, open(fname, "wb"))
         return look
     else:
-        return pickle.load(open(fname, "r"))
+        return pickle.load(open(fname, "rb"))
 
 
 def finite_deriv_dft_forward(dshape, units=None, use_rfft=False):
@@ -114,9 +118,9 @@ def deconv_hyperlap(y, h,
         grad = np.sum([abs(dx)**alpha for dx in dxs])
         return ener+grad
 
-    for i in xrange(outeriter):
-        print "iteration: %d / %d"%(i+1, outeriter)
-        for _ in xrange(inneriter):
+    for i in range(outeriter):
+        print("iteration: %d / %d"%(i+1, outeriter))
+        for _ in range(inneriter):
             # w subproblem
             # dx1, dx2 = np.gradient(x)
             # dxs = [.5*(np.roll(x,-1,i)-np.roll(x,1,i)) for i in range(y.ndim)]
@@ -143,7 +147,7 @@ def deconv_hyperlap(y, h,
 
 
             if logged:
-                print "objective f = %s"%objective(x)
+                print("objective f = %s"%objective(x))
 
                 # return H.conjugate()*Y
 
@@ -206,8 +210,8 @@ def deconv_hyperlap_breg(y, h,
     b = np.zeros((x.ndim,)+x.shape)
     grad_x = np.stack(np.gradient(x))
 
-    for i in xrange(niter):
-        print "iteration: %d / %d"%(i+1, niter)
+    for i in range(niter):
+        print("iteration: %d / %d"%(i+1, niter))
 
         # d subproblem
         d = soft_thresh(grad_x+b, 1./gamma)
@@ -262,7 +266,7 @@ if __name__=='__main__':
 
     u0 = deconv_rl(y, h, 5)
 
-    print "ratio of rms (<1 is good): %.2f"%(np.sum((x-u)**2)/np.sum((x-u0)**2))
+    print("ratio of rms (<1 is good): %.2f"%(np.sum((x-u)**2)/np.sum((x-u0)**2)))
 
     res = [x, y, u0, u]
 

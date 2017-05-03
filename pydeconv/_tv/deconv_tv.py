@@ -4,9 +4,13 @@
 see http://www.ipol.im/pub/art/2012/g-tvdc/article.pdf
 
 """
+from __future__ import absolute_import, division, print_function
 import sys
 import numpy as np
 from scipy.ndimage.filters import laplace
+from six.moves import range
+from six.moves import zip
+from functools import reduce
 
 
 def soft_thresh(x,t = 1.):
@@ -59,7 +63,7 @@ def deconv_tv(datas, psfs, lam, gamma, Niter = 5):
     lap  = dft_lap(dshape,use_rfft = True)
 
     for i in range(Niter):
-        print i
+        print(i)
         
         # d subproblem
         gu = np.array(np.gradient(u))
@@ -95,7 +99,7 @@ def myconvolve(x,h, is_fft = False):
     return np.abs(np.fft.irfftn(x_f*h_f))
 
 def psf(dshape,sigmas = (2.,2.)):
-    Xs = np.meshgrid(*[np.arange(-_s/2,_s/2) for _s in dshape], indexing="ij")
+    Xs = np.meshgrid(*[np.arange(-_s//2,_s//2) for _s in dshape], indexing="ij")
 
     h = np.exp(-np.sum([_X**2/2./_s**2 for _X,_s in zip(Xs,sigmas)],axis=0))
 
