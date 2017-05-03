@@ -4,6 +4,11 @@ import numpy as  np
                 
 from pydeconv._fftw.myfftw import MyFFTW
 
+def div_grad(u):
+    grads = np.stack(np.gradient(u))
+    normed = grads/(1.e-10+np.linalg.norm(grads,axis = 0))
+    return reduce(np.add,[np.gradient(g,axis = i) for i,g in enumerate(normed)])
+
 
 def deconv_rl(ys, hs,
               Niter=10,
@@ -12,6 +17,9 @@ def deconv_rl(ys, hs,
               h_is_fft = False,
               log_iter = False,
               mult_mode = "root",
+              acceleration = 1.,
+              tv_lambda = None,
+              return_history = False,
               fft_is_unitary=False):
 
     """ richardson lucy deconvolution
@@ -99,7 +107,8 @@ def deconv_rl(ys, hs,
 
     u = np.mean([np.mean(_y) for _y in ys])*np.ones_like(ys[0])
 
-    um = []
+
+    ums = [u.copy()]
 
     for i in range(Niter):
         if log_iter:
@@ -107,22 +116,36 @@ def deconv_rl(ys, hs,
         U = FFTW.rfftn(u)
         us = np.stack([_single_lucy_multiplier(y,U,H,H_flip) for y,H,H_flip in zip(ys,Hs,Hs_flip)])
 
+
+
         if mult_mode=="root":
-            u *= reduce(np.multiply,us**(1./len(ys)))
+            fac = reduce(np.multiply,us**(1./len(ys)))
+        elif mult_mode =="prod":
+            fac = reduce(np.multiply,us)
         elif mult_mode =="max":
-            u *= np.amax(us,axis=0)
+            fac = np.amax(us,axis=0)
+        elif mult_mode =="mean":
+            fac = np.mean(us,axis=0)
         elif mult_mode =="min":
-            u *= np.amin(us,axis=0)
+            fac = np.amin(us,axis=0)
         else:
             raise KeyError(multmode)
 
+        fac = fac**acceleration
 
-        um.append(us)
+        if tv_lambda is None:
+            u = u*fac
+        else:
+            u = u/(1.-tv_lambda*div_grad(u))*fac
 
-        #return u,us[0]
+        if return_history:
+            ums.append(u.copy())
 
 
-    return u
+    if return_history:
+        return ums
+    else:
+        return u
 
 
 if __name__ == '__main__':
